@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------
 # Created By  : Mohammad Zarei
 # Created Date: 10 Feb 2022
-# version ='0.1'
+# version ='1.0'
 # ---------------------------------------------------------------------------
 """Implementation of crossing class for pedestrian risk index model"""
 # ---------------------------------------------------------------------------
@@ -23,7 +23,8 @@ class Crossing:
         CS List[float]: Conflict speeds - [CS_RT1_a, CS_RT1_c, CS_RT2_b, CS_RT2_d, CS_LT3_a]
         DR List[float]: Death risk for potential crash - [DR_RT1_a, DR_RT1_c, DR_RT2_b, DR_RT2_d, DR_LT3_a]
         SIR List[float]: Severe injury risk for potential crash - [SIR_RT1_a, SIR_RT1_c, SRI_RT2_b, SIR_RT2_d, SIR_LT3_a]
-        PSI List[float]: Pedstrian safety index for potential crash - [PSI_RT1_a, PSI_RT1_c, PSI_RT2_d, PSI_RT2_d, PSI_LT3_a]
+        PSI_death float: Pedstrian safety index using death risk model
+        PSI_injury float: Pedstrian safety index using severe injury risk model
 
     """
 
@@ -32,10 +33,10 @@ class Crossing:
         self.PCV = self.getPotentialConflictVolume(feature_dict)
         self.PPP = self.getPresentPedestrianProbability(feature_dict)
         self.CS = self.getConflictSpeed(feature_dict)
-        self.DR = self.getDeathRisk(self.CS)
-        self.SIR = self.getSevereInjuryRisk(self.CS)
-        # To Do
-        # self.PSI = getPedestrianRiskIndex(feature_dict)
+        self.DR = self.getDeathRisk()
+        self.SIR = self.getSevereInjuryRisk()
+        self.PSI_death = self.getPedestrianRiskIndex('death')
+        self.PSI_injury = self.getPedestrianRiskIndex('injury')
         print('Crossing is initialized!')
     
     def getPotentialConflictVolume(self, feature_dict):
@@ -114,7 +115,6 @@ class Crossing:
             else:
                 # if (1) RTOR isn't permitted, or (2) RT isn't in exclusive lane on appraoch 1
                 PCV_RT1_a = feature_dict['volume_RT1'] * min(1, (feature_dict['walkInterval1']+feature_dict['flashingDontWalkInterval1'])/feature_dict['effectiveGreen1'])
-                print(PCV_RT1_a)
 
         ### Computing PCV_RT2_b and PCV_RT2_d
         if feature_dict['slipLane2']: 
@@ -136,12 +136,10 @@ class Crossing:
                     q_prime_mR = q_mR * feature_dict['cycleTime']/feature_dict['effectiveRed2']
                     q_prime_m = q_prime_mR/2 + q_prime_m1
                     q_RTOR = 850 - 0.35 * q_prime_m
-
                     ## c) number of RT vehicles on approach 2 that will discharge is minimum of q_arrival and q_RTOR
-                    min_qArrival_qRTOR = min(feature_dict['volume_RT2']*feature_dict['effectiveRed2']/3600,
-                                             q_RTOR*feature_dict['effectiveRed2']/3600) 
+                    min_qArrival_qRTOR = min(feature_dict['volume_RT2'],q_RTOR) * feature_dict['effectiveRed2']/3600
                     volume_RT2_prime = min_qArrival_qRTOR * 3600/feature_dict['cycleTime']
-                    PCV_RT2_b = volume_RT2_prime * min(1, (feature_dict['walkInterval1']+feature_dict['flashingDontWalkInterval1'])/feature_dict['effectiveGreen2'])
+                    PCV_RT2_b = volume_RT2_prime * min(1, (feature_dict['walkInterval1']+feature_dict['flashingDontWalkInterval1'])/feature_dict['effectiveRed2'])
                 else:
                     # if there isn't right turn slip lane on approach 1 
                     ## a) compute conflicting volume in shoulder lane on approach 1 (requires allocation of the through volume to the available lanes)
@@ -226,14 +224,14 @@ class Crossing:
         pedHeadway_ab = 3600 / effectivePedVolume_ab
         
         ## Compute average ped headway for area c, d (assume peds cross at anytime during cycle; not just green)
-        effectivePedVolume_cd = feature_dict['volume_P2']
+        effectivePedVolume_cd = feature_dict['volume_P2'] 
         pedHeadway_cd = 3600 / effectivePedVolume_cd
 
         ## Compute probability of present ped in the areas
         PPP_RT1_a = 1 - math.exp(-tw_a/pedHeadway_ab)
-        PPP_RT1_c = 1 - math.exp(-tw_c/pedHeadway_cd)
+        PPP_RT1_c = 1 - math.exp(-tw_c/pedHeadway_cd) if feature_dict['slipLane1']  else 0
         PPP_RT2_b = 1 - math.exp(-tw_b/pedHeadway_ab)
-        PPP_RT2_d = 1 - math.exp(-tw_d/pedHeadway_cd)
+        PPP_RT2_d = 1 - math.exp(-tw_d/pedHeadway_cd) if feature_dict['slipLane2']  else 0
         PPP_LT3_a = 1 - math.exp(-tw_a/pedHeadway_ab)
 
         return [PPP_RT1_a, PPP_RT1_c, PPP_RT2_b, PPP_RT2_d, PPP_LT3_a]
@@ -289,11 +287,8 @@ class Crossing:
         
         return [CS_RT1_a, CS_RT1_c, CS_RT2_b, CS_RT2_d, CS_LT3_a]
 
-    def getDeathRisk(self, speedList):
+    def getDeathRisk(self):
         """Computes the probability of a crash being fatal in the crossing areas
-
-        Args:
-            speedList: A list of speeds for each area of crossing, [CS_RT1_a, CS_RT1_c, CS_RT2_b, CS_RT2_d, CS_LT3_a]
 
         Returns:
             A list of death risks for potential crashes in the order of:
@@ -301,16 +296,16 @@ class Crossing:
             [DR_RT1_a, DR_RT1_c, DR_RT2_b, DR_RT2_d, DR_LT3_a]
 
         """
-        k = 1.45531E-06
-        n = 3.12586
+        k = 6E-07
+        n = 3.35
         DR_model = lambda s: 1-math.exp(-k*(s**n))
 
         # DR_list: [DR_RT1_a, DR_RT1_c, DR_RT2_b, DR_RT2_d, DR_LT3_a]
-        DR_list = [DR_model(s) for s in speedList]
+        DR_list = [DR_model(s) for s in self.CS]
 
         return DR_list
     
-    def getSevereInjuryRisk(self, speedList):
+    def getSevereInjuryRisk(self):
         """Computes the probability of a crash being severe injury in the crossing areas
 
         Args:
@@ -322,20 +317,20 @@ class Crossing:
             [SIR_RT1_a, SIR_RT1_c, SIR_RT2_b, SIR_RT2_d, SIR_LT3_a]
 
         """
-        k = 0.0000029106214673549
-        n = 3.12586438574137
+        k = 1.7E-06
+        n = 3.25
         SIR_model = lambda s: 1-math.exp(-k*(s**n))
 
         # SIR_list: [SIR_RT1_a, SIR_RT1_c, SIR_RT2_b, SIR_RT2_d, SIR_LT3_a]
-        SIR_list = [SIR_model(s) for s in speedList]
+        SIR_list = [SIR_model(s) for s in self.CS]
 
         return SIR_list
 
-    def getPedestrianRiskIndex(self):
+    def getPedestrianRiskIndex(self, severity):
         """Computes the pedestrian risk index for the crossing
 
         Args:
-            feature_dict: A dictionary of features realted to geometric and signal plan
+            severity: determine which severity model to use 'death' or 'injury'
 
         Returns:
             A list of Pedstrian safety index for potential crash potential crashes in the order of:
@@ -343,5 +338,9 @@ class Crossing:
             [PSI_RT1_a, PSI_RT1_b, PSI_RT2_c, PSI_RT2_d, PSI_LT3_a]
 
         """
-        pass
+        if severity == 'death':
+            PSI = sum([a*b*c for a,b,c in zip(self.PCV, self.PPP, self.DR)])
+        if severity == 'injury':
+            PSI = sum([a*b*c for a,b,c in zip(self.PCV, self.PPP, self.SIR)])
+        return PSI
 
