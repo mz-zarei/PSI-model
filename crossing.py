@@ -199,7 +199,9 @@ class Crossing:
             served_veh_permissive = feature_dict['volume_LT3'] - served_veh_protected
             PCV_LT3_a = served_veh_permissive * min(1, (feature_dict['walkInterval1']+feature_dict['flashingDontWalkInterval1'])/feature_dict['effectiveGreen1'])
         
-        return [PCV_RT1_a, PCV_RT1_c, PCV_RT2_b, PCV_RT2_d, PCV_LT3_a]
+        res = [PCV_RT1_a, PCV_RT1_c, PCV_RT2_b, PCV_RT2_d, PCV_LT3_a]
+        res = [round(i, 3) for i in res]
+        return res
 
     def getPresentPedestrianProbability(self, feature_dict):
         """Computes probability of pedestrain being present in the crossing
@@ -234,7 +236,9 @@ class Crossing:
         PPP_RT2_d = 1 - math.exp(-tw_d/pedHeadway_cd) if feature_dict['slipLane2']  else 0
         PPP_LT3_a = 1 - math.exp(-tw_a/pedHeadway_ab)
 
-        return [PPP_RT1_a, PPP_RT1_c, PPP_RT2_b, PPP_RT2_d, PPP_LT3_a]
+        res = [PPP_RT1_a, PPP_RT1_c, PPP_RT2_b, PPP_RT2_d, PPP_LT3_a]
+        res = [round(i, 3) for i in res]
+        return res
 
     def getConflictSpeed(self, feature_dict):
         """Computes conflicting speeds in the crossing areas
@@ -284,8 +288,9 @@ class Crossing:
         correction_factor, f_r = 1.38, 0.16                  
         CS_LT3_a = correction_factor * math.sqrt(127 * feature_dict['leftTurnRadius3'] * f_r)
         
-        
-        return [CS_RT1_a, CS_RT1_c, CS_RT2_b, CS_RT2_d, CS_LT3_a]
+        res = [CS_RT1_a, CS_RT1_c, CS_RT2_b, CS_RT2_d, CS_LT3_a]
+        res = [round(i,3) for i in res]
+        return res
 
     def getDeathRisk(self):
         """Computes the probability of a crash being fatal in the crossing areas
@@ -301,7 +306,7 @@ class Crossing:
         DR_model = lambda s: 1-math.exp(-k*(s**n))
 
         # DR_list: [DR_RT1_a, DR_RT1_c, DR_RT2_b, DR_RT2_d, DR_LT3_a]
-        DR_list = [DR_model(s) for s in self.CS]
+        DR_list = [round(DR_model(s),3) for s in self.CS]
 
         return DR_list
     
@@ -322,7 +327,7 @@ class Crossing:
         SIR_model = lambda s: 1-math.exp(-k*(s**n))
 
         # SIR_list: [SIR_RT1_a, SIR_RT1_c, SIR_RT2_b, SIR_RT2_d, SIR_LT3_a]
-        SIR_list = [SIR_model(s) for s in self.CS]
+        SIR_list = [round(SIR_model(s),3) for s in self.CS]
 
         return SIR_list
 
@@ -342,5 +347,5 @@ class Crossing:
             PSI = sum([a*b*c for a,b,c in zip(self.PCV, self.PPP, self.DR)])
         if severity == 'injury':
             PSI = sum([a*b*c for a,b,c in zip(self.PCV, self.PPP, self.SIR)])
-        return PSI
+        return round(PSI, 3)
 

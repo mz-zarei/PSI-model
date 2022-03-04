@@ -124,16 +124,16 @@ class intersection:
                         'leadingPedInterval1':feature_dict['leadingPedInterval3'], 'leadingPedInterval2':feature_dict['leadingPedInterval4'],
                         'effectiveRed1': feature_dict['effectiveRed3'], 'effectiveRed2': feature_dict['effectiveRed4'], 
                         'effectiveGreen1': feature_dict['effectiveGreen3'], 'effectiveGreen2': feature_dict['effectiveGreen4'],
-                        'walkInterval1': feature_dict['walkInterval2'], 'walkInterval3': feature_dict['walkInterval4'], 
+                        'walkInterval1': feature_dict['walkInterval3'], 'walkInterval2': feature_dict['walkInterval4'], 
                         'flashingDontWalkInterval1': feature_dict['flashingDontWalkInterval3'], 'flashingDontWalkInterval2': feature_dict['flashingDontWalkInterval4'],
                         'effectiveGreenProtected1': feature_dict['effectiveGreenProtected3'],
                         'pedWalkSpeed': feature_dict['pedWalkSpeed'],
                         }
         self.crossing4 = Crossing(feature_dict_crossing4)
         
-        self.PCV = [sum(self.crossing1.PCV), sum(self.crossing2.PCV), sum(self.crossing3.PCV), sum(self.crossing4.PCV)]
-        self.PSI_death = [self.crossing1.PSI_death, self.crossing2.PSI_death, self.crossing3.PSI_death, self.crossing4.PSI_death]
-        self.PSI_injury = [self.crossing1.PSI_injury, self.crossing2.PSI_injury, self.crossing3.PSI_injury, self.crossing4.PSI_injury]
+        self.PCV = [round(i,3) for i in [sum(self.crossing1.PCV), sum(self.crossing2.PCV), sum(self.crossing3.PCV), sum(self.crossing4.PCV)]]
+        self.PSI_death = [round(i,3) for i in [self.crossing1.PSI_death, self.crossing2.PSI_death, self.crossing3.PSI_death, self.crossing4.PSI_death]]
+        self.PSI_injury = [round(i,3) for i in [self.crossing1.PSI_injury, self.crossing2.PSI_injury, self.crossing3.PSI_injury, self.crossing4.PSI_injury]]
     
     def df_to_dict(self, feature_df):
         feature_dict = {}
