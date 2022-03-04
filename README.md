@@ -7,7 +7,9 @@ Completed Tasks:
 - Computes conflicting speeds in the crossing areas
 - Computes the probability of a crash being fatal in the crossing areas
 - Computes the probability of a crash being severe injury in each area a,b,c,d
+- Computes the pedestrian risk index for the crossing
 
 To Do:
-- Computes the pedestrian risk index for the crossing
+- Implement the program on real Intersection
+- Perform Sensitivity Analysis
 
