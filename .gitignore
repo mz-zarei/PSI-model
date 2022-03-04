@@ -1,4 +1,4 @@
-.xlsx
-.pyc
-.vscode
+*.xlsx
+*.pyc
+*.vscode
 /__pycache__
