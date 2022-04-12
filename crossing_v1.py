@@ -37,7 +37,7 @@ class Crossing:
         self.SIR = self.getSevereInjuryRisk()
         self.PSI_death = self.getPedestrianRiskIndex('death')
         self.PSI_injury = self.getPedestrianRiskIndex('injury')
-        print('Crossing is initialized!')
+        # print('Crossing is initialized!')
     
     def getPotentialConflictVolume(self, feature_dict):
         """Computes potential conflict volumes.
@@ -172,7 +172,7 @@ class Crossing:
                     min_qArrival_qRTOR = min( feature_dict['volume_RT2']*feature_dict['effectiveRed2']/3600,
                                               q_RTOR*feature_dict['effectiveRed2']/3600) * 3600/feature_dict['cycleTime']
                     volume_RT2_prime = min_qArrival_qRTOR
-                    print(min_qArrival_qRTOR)
+                    # print(min_qArrival_qRTOR)
                     PCV_RT2_b = volume_RT2_prime * min(1, (feature_dict['walkInterval1']+feature_dict['flashingDontWalkInterval1'])/feature_dict['effectiveRed2'])
             else:
                 # if (1) RTOR isn't permitted, or (2) RT isn't in exclusive lane on appraoch 2
