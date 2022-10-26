@@ -33,6 +33,7 @@ SIRs = []
 
 with open('Outputs/out.txt', 'w') as f:
     for path in os.listdir(inputsPath):
+        print(path)
         f.write("%"*90 + "\n")
         f.write("%"*90 + "\n")
         f.write("Crossings for           " + path[2:-5] + "\n")

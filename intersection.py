@@ -27,21 +27,21 @@ class intersection:
         # Initializing crossings
         feature_dict = self.df_to_dict(feature_df)
 
-        # feature_dict_crossing1 = self.adjust_feature_dict(1, feature_dict)
-        # self.crossing1 = Crossing(feature_dict_crossing1)
+        feature_dict_crossing1 = self.adjust_feature_dict(1, feature_dict)
+        self.crossing1 = Crossing(feature_dict_crossing1)
 
         feature_dict_crossing2 = self.adjust_feature_dict(2, feature_dict)
         self.crossing2 = Crossing(feature_dict_crossing2)
 
-        # feature_dict_crossing3 = self.adjust_feature_dict(3, feature_dict)
-        # self.crossing3 = Crossing(feature_dict_crossing3)
+        feature_dict_crossing3 = self.adjust_feature_dict(3, feature_dict)
+        self.crossing3 = Crossing(feature_dict_crossing3)
 
-        # feature_dict_crossing4 = self.adjust_feature_dict(4, feature_dict)
-        # self.crossing4 = Crossing(feature_dict_crossing4)
+        feature_dict_crossing4 = self.adjust_feature_dict(4, feature_dict)
+        self.crossing4 = Crossing(feature_dict_crossing4)
         
-        # self.PCV = [round(i,3) for i in [sum(self.crossing1.PCV), sum(self.crossing2.PCV), sum(self.crossing3.PCV), sum(self.crossing4.PCV)]]
-        # self.PSI_death = [round(i,3) for i in [self.crossing1.PSI_death, self.crossing2.PSI_death, self.crossing3.PSI_death, self.crossing4.PSI_death]]
-        # self.PSI_injury = [round(i,3) for i in [self.crossing1.PSI_injury, self.crossing2.PSI_injury, self.crossing3.PSI_injury, self.crossing4.PSI_injury]]
+        self.PCV = [round(i,3) for i in [sum(self.crossing1.PCV), sum(self.crossing2.PCV), sum(self.crossing3.PCV), sum(self.crossing4.PCV)]]
+        self.PSI_death = [round(i,3) for i in [self.crossing1.PSI_death, self.crossing2.PSI_death, self.crossing3.PSI_death, self.crossing4.PSI_death]]
+        self.PSI_injury = [round(i,3) for i in [self.crossing1.PSI_injury, self.crossing2.PSI_injury, self.crossing3.PSI_injury, self.crossing4.PSI_injury]]
     
     def df_to_dict(self, feature_df):
         feature_dict = {}

@@ -231,7 +231,6 @@ class Crossing:
             
             q_rtor_arrival = feature_dict['volume_RT2'] * feature_dict['effectiveRed2'] / c 
             RT2_rtor = min(C_rtor, q_rtor_arrival)
-            print(RT2_rtor)
             ## 2) compute conflicting volumes
             PCV_RT2_b = RT2_rtor * min(1, (feature_dict['walkInterval1']+feature_dict['flashingDontWalkInterval1'])/feature_dict['effectiveRed2'])
 
