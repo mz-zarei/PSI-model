@@ -45,7 +45,7 @@ with open('Outputs/out.txt', 'w') as f:
         intersection_test = intersection(feature_df)
 
         for cross, dir in zip([intersection_test.crossing1, intersection_test.crossing2, intersection_test.crossing3, intersection_test.crossing4],
-                               ['North', 'West', 'South', 'East']):
+                               ['SouthBound', 'EastBound', 'NorthBound', 'WestBound']):
             f.write(90*"=" + "\n")
             f.write(f"Crossing:          {dir} \n")
             f.write(f"PCV values:        {cross.PCV} \n")

@@ -164,8 +164,11 @@ class Crossing:
             # if there is exclusive RT and slip lane on appraoch 2 
             PCV_RT2_b = 0
             PCV_RT2_d = feature_dict['volume_RT2']
+        elif feature_dict['RTOR2']==False:
+            # if right turn on red is not permitted
+            PCV_RT2_b = 0
+            PCV_RT2_d = 0
         else: 
-
             PCV_RT2_d = 0
             ## 1) compute volume RTOR for appraoch 2
             # compute q'ped for approach 1
